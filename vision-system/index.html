@@ -1,0 +1,2934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EG.Vision.System - Universal Camera & Coordinate Management Solution. Complete documentation and API reference.">
+    <meta name="keywords" content="camera management, coordinate system, raycasting, mobile games, developer tools">
+    <title>EG.Vision.System Documentation - Easingame Studio</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00f5ff;
+            --primary-glow: rgba(0, 245, 255, 0.3);
+            --secondary: #7c3aed;
+            --accent: #f97316;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(20, 20, 20, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow-primary: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 50px rgba(0, 245, 255, 0.2);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-hero: radial-gradient(ellipse at center, rgba(0, 245, 255, 0.15) 0%, transparent 70%);
+            --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+        }
+
+        /* Background Effects */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.1;
+            }
+            90% {
+                opacity: 0.1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(200px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            z-index: 1000;
+            transition: width 0.3s ease;
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 10, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: var(--shadow-primary);
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 20px var(--primary-glow));
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Navigation */
+        .navigation {
+            position: fixed;
+            top: 50%;
+            right: 2rem;
+            transform: translateY(-50%);
+            z-index: 1000;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 280px;
+            transition: all 0.3s ease;
+            opacity: 0.9;
+        }
+
+        .navigation:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.02);
+        }
+
+        .nav-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-header h3 {
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-list a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-list a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-list a:hover::before {
+            left: 100%;
+        }
+
+        .nav-list a:hover {
+            background: rgba(0, 245, 255, 0.1);
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .nav-list a.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .nav-toggle {
+            display: none;
+            position: fixed;
+            top: 6rem;
+            right: 2rem;
+            z-index: 1001;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 245, 255, 0.3);
+        }
+
+        .nav-toggle:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: var(--secondary);
+            box-shadow: 0 8px 25px rgba(0, 245, 255, 0.5);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-top: 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-hero);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            animation: fadeInUp 1.5s ease-out;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .hero .version {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .hero .version:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
+        }
+
+        .hero-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .hero-feature {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .hero-feature:hover::before {
+            left: 100%;
+        }
+
+        .hero-feature:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .hero-feature .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .hero-feature:hover .icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        /* Sections */
+        .section {
+            margin: 8rem 0;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .section-header h2:hover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: translateY(-2px);
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 3rem 0;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 245, 255, 0.3);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .glass-card h3 {
+            color: var(--secondary);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .glass-card h3:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .glass-card h4 {
+            color: var(--accent);
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem 0;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .glass-card h4:hover {
+            color: var(--primary);
+            transform: translateX(3px);
+        }
+
+        /* Code Blocks */
+        .code-container {
+            position: relative;
+            margin: 2rem 0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .code-container:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 245, 255, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-language {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .copy-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .copy-button:hover::before {
+            left: 100%;
+        }
+
+        .copy-button:hover {
+            background: var(--secondary);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 245, 255, 0.4);
+        }
+
+        .copy-button.copied {
+            background: #10b981;
+        }
+
+        .code-block {
+            background: transparent;
+            color: var(--text-primary);
+            padding: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* Syntax highlighting */
+        .keyword { color: #8b5cf6; font-weight: 600; }
+        .string { color: #10b981; }
+        .comment { color: #6b7280; font-style: italic; }
+        .method { color: #f59e0b; font-weight: 600; }
+        .type { color: #60a5fa; font-weight: 600; }
+        .number { color: #f472b6; }
+
+        /* Inline code */
+        code {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            color: #fbbf24;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid #6b7280;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        code:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+        }
+
+        /* API Methods */
+        .api-grid {
+            display: grid;
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .api-method {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .api-method:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .api-signature {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .api-content {
+            padding: 2rem;
+        }
+
+        .api-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .api-parameters {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .info-box:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 245, 255, 0.5);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .info-box.success { 
+            border-left-color: #10b981; 
+        }
+
+        .info-box.warning { 
+            border-left-color: #ef4444; 
+        }
+
+        .info-box.accent { 
+            border-left-color: var(--accent); 
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .table-container:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 245, 255, 0.3);
+            box-shadow: var(--shadow-glow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(0, 245, 255, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Lists */
+        .centered-list {
+            text-align: center;
+        }
+
+        .centered-list ol,
+        .centered-list ul {
+            display: inline-block;
+            text-align: left;
+            font-size: 1.1rem;
+            line-height: 2;
+            transition: all 0.3s ease;
+        }
+
+        .centered-list li {
+            transition: all 0.3s ease;
+            padding: 0.2rem 0;
+            border-radius: 4px;
+        }
+
+        .centered-list li:hover {
+            background: rgba(0, 245, 255, 0.1);
+            padding-left: 1rem;
+            transform: translateX(5px);
+        }
+
+        /* Benefits Grid */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .benefit-card {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .benefit-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--secondary);
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.2);
+        }
+
+        .benefit-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover .benefit-icon {
+            transform: scale(1.2) rotate(-5deg);
+        }
+
+        /* Architecture */
+        .architecture-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .architecture-layer {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .architecture-layer:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+
+        .layer-interface { border-left: 4px solid #10b981; }
+        .layer-manager { border-left: 4px solid var(--primary); }
+        .layer-core { border-left: 4px solid var(--accent); }
+        .layer-user { border-left: 4px solid #ec4899; }
+
+        .subsystems {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .subsystem {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .subsystem:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .subsystem h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .subsystem .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .subsystem:hover .icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            margin: 6rem 0 2rem;
+            text-align: center;
+        }
+
+        .footer h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .benefits-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            .subsystems {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .navigation {
+                position: fixed;
+                top: 0;
+                right: -300px;
+                height: 100vh;
+                width: 280px;
+                transform: none;
+                border-radius: 0;
+                transition: right 0.3s ease;
+            }
+
+            .navigation.open {
+                right: 0;
+            }
+
+            .nav-toggle {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-features {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .subsystems {
+                grid-template-columns: 1fr;
+            }
+
+            .architecture-layers {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav {
+                padding: 0 1rem;
+            }
+            
+            .hero {
+                margin-top: 60px;
+            }
+            
+            .section {
+                margin: 4rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-grid"></div>
+    <div class="floating-particles"></div>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <a href="../" class="logo">🎥 EG.Vision.System</a>
+            <a href="../" class="back-link">
+                ← Back to Easingame Studio
+            </a>
+        </nav>
+    </header>
+
+    <!-- Navigation -->
+    <button class="nav-toggle" id="navToggle">☰</button>
+    
+    <nav class="navigation" id="navigation">
+        <div class="nav-header">
+            <h3>📚 Navigation</h3>
+        </div>
+        <ul class="nav-list">
+            <li><a href="#hero" data-section="hero">🏠 Home</a></li>
+            <li><a href="#introduction" data-section="introduction">📖 Introduction</a></li>
+            <li><a href="#quick-start" data-section="quick-start">🚀 Quick Start</a></li>
+            <li><a href="#architecture" data-section="architecture">🏗️ Architecture</a></li>
+            <li><a href="#api-reference" data-section="api-reference">💻 API Reference</a></li>
+            <li><a href="#examples" data-section="examples">💡 Examples</a></li>
+            <li><a href="#integration" data-section="integration">⚙️ Integration</a></li>
+            <li><a href="#advanced" data-section="advanced">🔮 Advanced</a></li>
+            <li><a href="#troubleshooting" data-section="troubleshooting">🔧 Troubleshooting</a></li>
+            <li><a href="#performance" data-section="performance">📈 Performance</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section id="hero" class="hero">
+            <div class="hero-content">
+                <h1>🎥 EG.Vision.System</h1>
+                <p class="subtitle">Universal Camera & Coordinate Management Solution</p>
+                <span class="version">v2025.1 - Production Ready</span>
+                
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <div class="icon">🎯</div>
+                        <h3>Universal Raycasting</h3>
+                        <p>One method handles both 3D objects and UI elements seamlessly. No more separate Physics.Raycast and EventSystem.RaycastAll calls.</p>
+                    </div>
+                    <div class="hero-feature">
+                        <div class="icon">🎥</div>
+                        <h3>Smart Camera Management</h3>
+                        <p>Automatic discovery, classification, and tracking of cameras. Intelligently handles main cameras, UI cameras, and overlays.</p>
+                    </div>
+                    <div class="hero-feature">
+                        <div class="icon">🗺️</div>
+                        <h3>Coordinate Conversion</h3>
+                        <p>Easy conversion between screen, world, viewport, and UI coordinates. Works with both orthographic and perspective cameras.</p>
+                    </div>
+                    <div class="hero-feature">
+                        <div class="icon">📱</div>
+                        <h3>Mobile Ready</h3>
+                        <p>Built-in Safe Area support for notches, Dynamic Island, and rounded corners. Automatically adapts to device orientation changes.</p>
+                    </div>
+                    <div class="hero-feature">
+                        <div class="icon">🔔</div>
+                        <h3>Event System</h3>
+                        <p>Real-time notifications for camera changes, resolution updates, and screen rotations. React to changes automatically.</p>
+                    </div>
+                    <div class="hero-feature">
+                        <div class="icon">⚙️</div>
+                        <h3>Zero Configuration</h3>
+                        <p>Works out of the box with any game project. Automatic detection of render pipeline, input systems, and platform settings.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Introduction -->
+        <section id="introduction" class="section">
+            <div class="section-header">
+                <h2>📖 Introduction & Overview</h2>
+                <p>EG.Vision.System is a comprehensive development framework that unifies camera management, coordinate conversion, raycasting, and mobile features into a single powerful API. It eliminates the complexity of fragmented camera and input systems, providing a clean, production-ready solution for any game project.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>⭐ Why EG.Vision.System?</h3>
+                
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">✅</div>
+                        <h3>Replace 15+ APIs</h3>
+                        <p>One unified interface replaces multiple engine APIs</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⚡</div>
+                        <h3>90% Less Code</h3>
+                        <p>Dramatically reduce development time and complexity</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🛡️</div>
+                        <h3>Zero Configuration</h3>
+                        <p>Works out of the box with any game project</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📱</div>
+                        <h3>Mobile Optimized</h3>
+                        <p>Full support for all mobile platforms and features</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🏗️</div>
+                        <h3>SOLID Architecture</h3>
+                        <p>Production-tested clean architecture patterns</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🔄</div>
+                        <h3>Universal Compatibility</h3>
+                        <p>All render pipelines, input systems, and platforms</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🔔</div>
+                        <h3>Event System</h3>
+                        <p>Real-time notifications for camera changes, resolution updates, and screen rotations</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📋</div>
+                        <h3>Comprehensive Documentation</h3>
+                        <p>Full documentation and working examples for every feature</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🔧 Key Architecture Features</h3>
+                <div class="centered-list">
+                    <ul>
+                        <li><strong>Automatic Camera Discovery:</strong> System continuously monitors scene for camera changes</li>
+                        <li><strong>Intelligent Classification:</strong> Automatically determines camera types (Main, UI, Overlay, Custom)</li>
+                        <li><strong>Efficient Coordinate System:</strong> Camera reference caching for maximum performance</li>
+                        <li><strong>Unified Raycasting:</strong> Single function for both 3D objects and UI elements</li>
+                        <li><strong>Mobile Optimization:</strong> Built-in Safe Area and orientation change support</li>
+                        <li><strong>Event-driven Architecture:</strong> Reactive programming through event system</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section id="quick-start" class="section">
+            <div class="section-header">
+                <h2>🚀 Quick Start Guide</h2>
+                <p>Get up and running with EG.Vision.System in just a few minutes.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>📦 Installation</h3>
+                <div class="centered-list">
+                    <ol>
+                        <li>Import the EG.Vision.System package into your game project</li>
+                        <li>Add the <code>VisionManager</code> component to any GameObject in the scene</li>
+                        <li>The system initializes automatically when the scene starts</li>
+                    </ol>
+                </div>
+
+                <div class="info-box success">
+                    <strong>✅ Done!</strong> You now have access to all camera and coordinate functionality through a single unified interface.
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>💻 Basic Usage</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block">// 1. Get reference to Vision System
+<span class="keyword">using</span> EG.Vision.System.Interfaces;
+
+<span class="type">IVisionSystem</span> vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+
+// 2. Universal raycasting
+<span class="type">VisionRaycastResult</span> result = vision.<span class="method">PerformRaycast</span>(Input.mousePosition);
+<span class="keyword">if</span> (result.hasHit) 
+{
+    Debug.Log($<span class="string">"Hit: {result.hitObject.name} (Type: {result.hitType})"</span>);
+}
+
+// 3. Quick object detection
+<span class="type">GameObject</span> clickedObject = vision.<span class="method">GetObjectUnderCursor</span>();
+
+// 4. Coordinate conversion
+<span class="type">Vector3</span> worldPos = vision.<span class="method">ScreenToWorld</span>(Input.mousePosition, <span class="number">10f</span>);
+<span class="type">Vector2</span> screenPos = vision.<span class="method">WorldToScreen</span>(transform.position);
+
+// 5. Event subscription
+vision.Events.OnPrimaryCameraChanged += (newCamera) => 
+{
+    Debug.Log($<span class="string">"Camera changed to: {newCamera.name}"</span>);
+};</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>⚡ Core Methods - Quick Reference</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C# Quick Reference</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block">// Object detection
+vision.<span class="method">GetObjectUnderCursor</span>()                    // Mouse clicks
+vision.<span class="method">GetObjectUnderTouch</span>(<span class="number">0</span>)                     // Touch input
+vision.<span class="method">PerformRaycast</span>(screenPos)                  // Detailed raycasting
+
+// Coordinate conversion
+vision.<span class="method">ScreenToWorld</span>(screenPos, depth)            // Place objects in world
+vision.<span class="method">WorldToScreen</span>(worldPos)                   // Position UI over objects
+vision.<span class="method">ConvertScreenToUI</span>(screenPos, canvas)      // Drag & drop to UI
+
+// Camera access
+vision.<span class="method">GetPrimaryCamera</span>()                        // Main game camera
+vision.<span class="method">GetAllCameras</span>()                           // All scene cameras
+
+// Mobile support
+vision.<span class="method">GetSafeAreaBounds</span>()                       // Safe area for UI
+vision.<span class="method">IsPointInSafeArea</span>(touchPos)               // Touch validation</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🔍 Initialization Check</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="keyword">void</span> <span class="method">Start</span>()
+{
+    <span class="type">IVisionSystem</span> vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+    
+    <span class="keyword">if</span> (vision == null)
+    {
+        Debug.LogError(<span class="string">"VisionManager not found in scene!"</span>);
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="keyword">if</span> (!vision.IsInitialized)
+    {
+        Debug.LogWarning(<span class="string">"Vision system not yet initialized"</span>);
+        <span class="comment">// System initializes automatically</span>
+    }
+}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture -->
+        <section id="architecture" class="section">
+            <div class="section-header">
+                <h2>🏗️ System Architecture</h2>
+                <p>EG.Vision.System follows SOLID principles and clean architecture patterns, ensuring maintainability, extensibility, and performance.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>📊 System Layers</h3>
+                <div class="architecture-layers">
+                    <div class="architecture-layer layer-user">
+                        👨‍💻 Your Game Code
+                    </div>
+                    <div class="architecture-layer layer-interface">
+                        🔌 IVisionSystem Interface (Single Entry Point)
+                    </div>
+                    <div class="architecture-layer layer-manager">
+                        ⚙️ VisionManager (Component Bridge)
+                    </div>
+                    <div class="architecture-layer layer-core">
+                        🧠 VisionSystem Core (Business Logic)
+                    </div>
+                </div>
+
+                <h4>🔧 Subsystem Components</h4>
+                <div class="subsystems">
+                    <div class="subsystem">
+                        <div class="icon">🎥</div>
+                        <h4>Camera System</h4>
+                        <p>CameraDiscoveryService<br>CameraProvider<br>CameraDetector</p>
+                    </div>
+                    <div class="subsystem">
+                        <div class="icon">🗺️</div>
+                        <h4>Coordinate System</h4>
+                        <p>CoordinateProvider<br>Screen ↔ World<br>UI ↔ Canvas</p>
+                    </div>
+                    <div class="subsystem">
+                        <div class="icon">🎯</div>
+                        <h4>Raycast System</h4>
+                        <p>RaycastService<br>3D + UI Unified<br>Multi-touch</p>
+                    </div>
+                    <div class="subsystem">
+                        <div class="icon">📱</div>
+                        <h4>Screen Monitor</h4>
+                        <p>ScreenMonitor<br>Resolution Events<br>Safe Area</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🔩 Core Components</h3>
+                
+                <h4>VisionManager</h4>
+                <p>Component providing the framework bridge. Add it to any game object in the scene to activate the system. It handles initialization, updates, and serves as the main entry point.</p>
+
+                <h4>VisionSystem Core</h4>
+                <p>Internal business logic coordinating all subsystems. Manages camera discovery lifecycle, coordinate conversions, and event distribution.</p>
+
+                <h4>CameraDiscoveryService</h4>
+                <p>Continuously monitors the scene for camera changes. Automatically discovers new cameras, classifies them by type, and notifies the system of changes. Operates on configurable intervals (default: 2 seconds).</p>
+
+                <h4>CoordinateProvider</h4>
+                <p>Handles all coordinate transformations between different spaces: screen coordinates, world positions, viewport coordinates, and local UI coordinates. Supports both orthographic and perspective cameras.</p>
+
+                <h4>RaycastService</h4>
+                <p>Provides unified raycasting that automatically determines whether to use Physics.Raycast for 3D objects or EventSystem.RaycastAll for UI elements. Returns comprehensive hit information.</p>
+
+                <h4>ScreenMonitor</h4>
+                <p>Monitors screen resolution and orientation changes, generating events when changes are detected. Essential for adaptive mobile applications.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>🏛️ SOLID Principles Implementation</h3>
+                <div class="centered-list">
+                    <ul>
+                        <li><strong>Single Responsibility:</strong> Each class has one focused purpose</li>
+                        <li><strong>Open/Closed:</strong> System is extensible through interfaces without modifying core code</li>
+                        <li><strong>Liskov Substitution:</strong> All implementations perfectly follow interface contracts</li>
+                        <li><strong>Interface Segregation:</strong> Focused, specific interfaces</li>
+                        <li><strong>Dependency Inversion:</strong> High-level modules depend on abstractions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🔄 System Lifecycle</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// Automatic initialization through VisionManager</span>
+<span class="keyword">void</span> <span class="method">Awake</span>() <span class="comment">// VisionManager.Awake()</span>
+{
+    <span class="keyword">if</span> (initializeOnAwake && config != null)
+    {
+        Initialize(); <span class="comment">// Create VisionSystem and all subsystems</span>
+    }
+}
+
+<span class="keyword">void</span> <span class="method">Update</span>() <span class="comment">// VisionManager.Update()</span>
+{
+    visionSystem?.Update(); <span class="comment">// Update ScreenMonitor</span>
+}
+
+<span class="keyword">void</span> <span class="method">OnDestroy</span>() <span class="comment">// VisionManager.OnDestroy()</span>
+{
+    Shutdown(); <span class="comment">// Cleanup resources and stop all services</span>
+}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Reference -->
+        <section id="api-reference" class="section">
+            <div class="section-header">
+                <h2>💻 Complete API Reference</h2>
+                <p>Main interface providing all Vision System functionality. Access via <code>FindFirstObjectByType&lt;VisionManager&gt;()</code>.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>🎯 Raycasting Methods</h3>
+                
+                <div class="api-method">
+                    <div class="api-signature">VisionRaycastResult PerformRaycast(Vector2 screenPosition, Camera camera = null)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Performs comprehensive raycasting to determine the object under a screen position. Automatically determines whether the object is a 3D world object or UI element.
+                        </div>
+                        <div class="api-parameters">
+                            <strong>Parameters:</strong><br>
+                            • <code>screenPosition</code> - Screen coordinates in pixels<br>
+                            • <code>camera</code> - Optional camera (null = primary camera)
+                        </div>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-language">C# Example</span>
+                                <button class="copy-button" onclick="copyCode(this)">
+                                    📋 Copy
+                                </button>
+                            </div>
+                            <div class="code-block"><span class="type">VisionRaycastResult</span> result = vision.<span class="method">PerformRaycast</span>(Input.mousePosition);
+<span class="keyword">if</span> (result.hasHit) 
+{
+    <span class="keyword">if</span> (result.hitType == <span class="type">VisionRaycastHitType</span>.World3D) 
+    {
+        <span class="comment">// Handle 3D object</span>
+        <span class="type">GameObject</span> worldObject = result.hitObject;
+        Debug.Log($<span class="string">"Hit 3D object: {worldObject.name} at {result.hitPoint}"</span>);
+    } 
+    <span class="keyword">else if</span> (result.hitType == <span class="type">VisionRaycastHitType</span>.UI) 
+    {
+        <span class="comment">// Handle UI element</span>
+        <span class="type">GameObject</span> uiElement = result.hitObject;
+        Debug.Log($<span class="string">"Hit UI element: {uiElement.name}"</span>);
+    }
+}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">GameObject GetObjectUnderCursor(Camera camera = null)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Quick method to get the GameObject under the mouse cursor. Returns null if no object is found.
+                        </div>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-language">C# Example</span>
+                                <button class="copy-button" onclick="copyCode(this)">
+                                    📋 Copy
+                                </button>
+                            </div>
+                            <div class="code-block"><span class="type">GameObject</span> hoveredObject = vision.<span class="method">GetObjectUnderCursor</span>();
+<span class="keyword">if</span> (hoveredObject != null) 
+{
+    ShowTooltip(hoveredObject);
+}
+<span class="keyword">else</span>
+{
+    HideTooltip();
+}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">GameObject GetObjectUnderTouch(int touchIndex)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Get the GameObject under a specific touch. Designed for mobile touch input.
+                        </div>
+                        <div class="api-parameters">
+                            <strong>Parameters:</strong><br>
+                            • <code>touchIndex</code> - Index of the touch (0 for first touch)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🎥 Camera Management Methods</h3>
+                
+                <div class="api-method">
+                    <div class="api-signature">Camera GetPrimaryCamera()</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Get the current primary camera for world rendering. System automatically detects MainCamera tag or camera with highest depth.
+                        </div>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-language">C# Example</span>
+                                <button class="copy-button" onclick="copyCode(this)">
+                                    📋 Copy
+                                </button>
+                            </div>
+                            <div class="code-block"><span class="type">Camera</span> mainCam = vision.<span class="method">GetPrimaryCamera</span>();
+<span class="keyword">if</span> (mainCam != null) 
+{
+    ApplyPostProcessing(mainCam);
+    SetCinemachineTarget(mainCam);
+}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">List&lt;Camera&gt; GetAllCameras()</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Get all cameras currently tracked by the system.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">List&lt;Camera&gt; GetCamerasByType(VisionCameraType type)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Get cameras filtered by type (Main, UI, Overlay, Custom).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">Camera GetCameraByName(string name)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Find a camera by its GameObject name.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🗺️ Coordinate Conversion Methods</h3>
+                
+                <div class="api-method">
+                    <div class="api-signature">Vector3 ScreenToWorld(Vector2 screenPos, float depth = 0f, Camera camera = null)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Convert screen coordinates to world position. Automatically handles orthographic and perspective cameras.
+                        </div>
+                        <div class="api-parameters">
+                            <strong>Parameters:</strong><br>
+                            • <code>screenPos</code> - Screen coordinates in pixels<br>
+                            • <code>depth</code> - World depth for perspective cameras, Z coordinate for orthographic<br>
+                            • <code>camera</code> - Optional camera (null = primary camera)
+                        </div>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-language">C# Example</span>
+                                <button class="copy-button" onclick="copyCode(this)">
+                                    📋 Copy
+                                </button>
+                            </div>
+                            <div class="code-block"><span class="comment">// Place object at mouse position in world</span>
+<span class="type">Vector3</span> worldPos = vision.<span class="method">ScreenToWorld</span>(Input.mousePosition, <span class="number">10f</span>);
+instantiatedObject.transform.position = worldPos;
+
+<span class="comment">// For 2D games (orthographic)</span>
+<span class="type">Vector3</span> worldPos2D = vision.<span class="method">ScreenToWorld</span>(Input.mousePosition, <span class="number">0f</span>);
+player2D.transform.position = worldPos2D;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">Vector2 WorldToScreen(Vector3 worldPos, Camera camera = null)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Convert world position to screen coordinates.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">Vector2 ConvertScreenToUI(Vector2 screenPos, Canvas canvas)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Convert screen coordinates to UI local coordinates for a specific canvas.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">bool IsPositionVisible(Vector3 worldPos, Camera camera = null)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Check if a world position is visible in the camera viewport.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>📱 Mobile Safe Area Methods</h3>
+                
+                <div class="api-method">
+                    <div class="api-signature">Rect GetSafeAreaBounds()</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Get safe area bounds for the current device. Safe area excludes notches, rounded corners, and other screen obstacles.
+                        </div>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-language">C# Example</span>
+                                <button class="copy-button" onclick="copyCode(this)">
+                                    📋 Copy
+                                </button>
+                            </div>
+                            <div class="code-block"><span class="type">Rect</span> safeArea = vision.<span class="method">GetSafeAreaBounds</span>();
+
+<span class="comment">// Adapt UI layout for safe area</span>
+uiPanel.anchorMin = <span class="keyword">new</span> <span class="type">Vector2</span>(
+    safeArea.x / Screen.width, 
+    safeArea.y / Screen.height
+);
+uiPanel.anchorMax = <span class="keyword">new</span> <span class="type">Vector2</span>(
+    (safeArea.x + safeArea.width) / Screen.width,
+    (safeArea.y + safeArea.height) / Screen.height
+);
+uiPanel.offsetMin = <span class="type">Vector2</span>.zero;
+uiPanel.offsetMax = <span class="type">Vector2</span>.zero;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">bool IsPointInSafeArea(Vector2 screenPos)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Check if a screen position is within the safe area.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-method">
+                    <div class="api-signature">Vector2 ClampToSafeArea(Vector2 screenPos)</div>
+                    <div class="api-content">
+                        <div class="api-description">
+                            Clamp a screen position to the safe area bounds.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>📊 Data Types</h3>
+                
+                <h4>VisionRaycastResult</h4>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>hasHit</td>
+                                <td>bool</td>
+                                <td>Whether the raycast hit any object</td>
+                            </tr>
+                            <tr>
+                                <td>hitType</td>
+                                <td>VisionRaycastHitType</td>
+                                <td>Type of hit object (None, World3D, UI)</td>
+                            </tr>
+                            <tr>
+                                <td>hitObject</td>
+                                <td>GameObject</td>
+                                <td>GameObject that was hit by the raycast</td>
+                            </tr>
+                            <tr>
+                                <td>hitPoint</td>
+                                <td>Vector3</td>
+                                <td>Exact hit point in world coordinates</td>
+                            </tr>
+                            <tr>
+                                <td>hitDistance</td>
+                                <td>float</td>
+                                <td>Distance from camera to hit point</td>
+                            </tr>
+                            <tr>
+                                <td>camera</td>
+                                <td>Camera</td>
+                                <td>Camera used for raycasting</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>VisionCameraInfo</h4>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>cameraType</td>
+                                <td>VisionCameraType</td>
+                                <td>Camera classification (Main, UI, Overlay, Custom)</td>
+                            </tr>
+                            <tr>
+                                <td>isOrthographic</td>
+                                <td>bool</td>
+                                <td>Whether camera uses orthographic projection</td>
+                            </tr>
+                            <tr>
+                                <td>fieldOfView</td>
+                                <td>float</td>
+                                <td>Field of view for perspective cameras</td>
+                            </tr>
+                            <tr>
+                                <td>orthographicSize</td>
+                                <td>float</td>
+                                <td>Size for orthographic cameras</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Examples -->
+        <section id="examples" class="section">
+            <div class="section-header">
+                <h2>💡 Practical Examples</h2>
+                <p>Real-world implementation examples to get you started quickly.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>🖱️ Example 1: Object Selection System</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="keyword">public class</span> <span class="type">ObjectSelector</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+    <span class="keyword">private</span> <span class="type">GameObject</span> selectedObject;
+    <span class="keyword">private</span> <span class="type">GameObject</span> hoveredObject;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+    }
+
+    <span class="keyword">void</span> <span class="method">Update</span>()
+    {
+        <span class="comment">// Highlight object under cursor</span>
+        <span class="type">GameObject</span> newHovered = vision.<span class="method">GetObjectUnderCursor</span>();
+        <span class="keyword">if</span> (newHovered != hoveredObject)
+        {
+            <span class="keyword">if</span> (hoveredObject != null) 
+                RemoveHighlight(hoveredObject);
+            <span class="keyword">if</span> (newHovered != null) 
+                AddHighlight(newHovered);
+            hoveredObject = newHovered;
+        }
+
+        <span class="comment">// Select object on click</span>
+        <span class="keyword">if</span> (Input.GetMouseButtonDown(<span class="number">0</span>))
+        {
+            <span class="type">VisionRaycastResult</span> result = vision.<span class="method">PerformRaycast</span>(Input.mousePosition);
+            <span class="keyword">if</span> (result.hasHit && result.hitType == <span class="type">VisionRaycastHitType</span>.World3D)
+            {
+                SelectObject(result.hitObject);
+            }
+        }
+    }
+
+    <span class="keyword">void</span> <span class="method">SelectObject</span>(<span class="type">GameObject</span> obj)
+    {
+        <span class="keyword">if</span> (selectedObject != null) 
+            RemoveSelection(selectedObject);
+        
+        selectedObject = obj;
+        AddSelection(obj);
+        
+        <span class="comment">// Show selection UI at object position</span>
+        <span class="type">Vector2</span> screenPos = vision.<span class="method">WorldToScreen</span>(obj.transform.position);
+        ShowSelectionUI(screenPos);
+    }
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>📱 Example 2: Mobile UI Adaptation</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="keyword">public class</span> <span class="type">MobileUIAdapter</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="type">RectTransform</span> mainUI;
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="type">RectTransform</span> gameplayHUD;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+        
+        <span class="comment">// Subscribe to orientation changes</span>
+        vision.Events.OnOrientationChanged += HandleOrientationChange;
+        vision.Events.OnResolutionChanged += HandleResolutionChange;
+        
+        <span class="comment">// Initial setup</span>
+        AdaptToSafeArea();
+    }
+
+    <span class="keyword">void</span> <span class="method">HandleOrientationChange</span>(<span class="type">ScreenOrientation</span> oldOrient, 
+                                     <span class="type">ScreenOrientation</span> newOrient)
+    {
+        <span class="comment">// Wait one frame for screen size updates</span>
+        StartCoroutine(AdaptToSafeAreaNextFrame());
+        
+        <span class="comment">// Configure UI layout based on orientation</span>
+        <span class="keyword">if</span> (IsLandscape(newOrient))
+        {
+            SetLandscapeLayout();
+        }
+        <span class="keyword">else</span>
+        {
+            SetPortraitLayout();
+        }
+    }
+
+    <span class="keyword">void</span> <span class="method">AdaptToSafeArea</span>()
+    {
+        <span class="type">Rect</span> safeArea = vision.<span class="method">GetSafeAreaBounds</span>();
+        
+        <span class="comment">// Convert safe area to anchor coordinates</span>
+        <span class="type">Vector2</span> anchorMin = <span class="keyword">new</span> <span class="type">Vector2</span>(
+            safeArea.x / Screen.width,
+            safeArea.y / Screen.height
+        );
+        
+        <span class="type">Vector2</span> anchorMax = <span class="keyword">new</span> <span class="type">Vector2</span>(
+            (safeArea.x + safeArea.width) / Screen.width,
+            (safeArea.y + safeArea.height) / Screen.height
+        );
+        
+        <span class="comment">// Apply to main UI</span>
+        mainUI.anchorMin = anchorMin;
+        mainUI.anchorMax = anchorMax;
+        mainUI.offsetMin = <span class="type">Vector2</span>.zero;
+        mainUI.offsetMax = <span class="type">Vector2</span>.zero;
+    }
+
+    <span class="keyword">void</span> <span class="method">OnDestroy</span>()
+    {
+        <span class="keyword">if</span> (vision != null)
+        {
+            vision.Events.OnOrientationChanged -= HandleOrientationChange;
+            vision.Events.OnResolutionChanged -= HandleResolutionChange;
+        }
+    }
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>✋ Example 3: Drag & Drop System</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="keyword">public class</span> <span class="type">DragDropManager</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+    <span class="keyword">private</span> <span class="type">GameObject</span> draggedObject;
+    <span class="keyword">private</span> <span class="type">Vector3</span> dragOffset;
+    <span class="keyword">private</span> <span class="type">Vector3</span> originalPosition;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+    }
+
+    <span class="keyword">void</span> <span class="method">Update</span>()
+    {
+        <span class="keyword">if</span> (Input.GetMouseButtonDown(<span class="number">0</span>))
+        {
+            StartDrag();
+        }
+        <span class="keyword">else if</span> (Input.GetMouseButtonUp(<span class="number">0</span>))
+        {
+            EndDrag();
+        }
+        <span class="keyword">else if</span> (draggedObject != null)
+        {
+            UpdateDrag();
+        }
+    }
+
+    <span class="keyword">void</span> <span class="method">StartDrag</span>()
+    {
+        <span class="type">GameObject</span> obj = vision.<span class="method">GetObjectUnderCursor</span>();
+        <span class="keyword">if</span> (obj != null && obj.CompareTag(<span class="string">"Draggable"</span>))
+        {
+            draggedObject = obj;
+            originalPosition = obj.transform.position;
+            
+            <span class="type">Vector3</span> mouseWorld = vision.<span class="method">ScreenToWorld</span>(Input.mousePosition, <span class="number">10f</span>);
+            dragOffset = obj.transform.position - mouseWorld;
+            
+            <span class="comment">// Visual feedback for drag start</span>
+            obj.GetComponent&lt;<span class="type">Renderer</span>&gt;().material.color = <span class="type">Color</span>.yellow;
+        }
+    }
+
+    <span class="keyword">void</span> <span class="method">UpdateDrag</span>()
+    {
+        <span class="type">Vector3</span> mouseWorld = vision.<span class="method">ScreenToWorld</span>(Input.mousePosition, <span class="number">10f</span>);
+        draggedObject.transform.position = mouseWorld + dragOffset;
+    }
+
+    <span class="keyword">void</span> <span class="method">EndDrag</span>()
+    {
+        <span class="keyword">if</span> (draggedObject != null)
+        {
+            <span class="comment">// Check for valid drop zone</span>
+            <span class="type">VisionRaycastResult</span> result = vision.<span class="method">PerformRaycast</span>(Input.mousePosition);
+            <span class="keyword">if</span> (result.hasHit && result.hitObject.CompareTag(<span class="string">"DropZone"</span>))
+            {
+                <span class="comment">// Valid drop</span>
+                DropObject(draggedObject, result.hitObject);
+            }
+            <span class="keyword">else</span>
+            {
+                <span class="comment">// Invalid drop - return to original position</span>
+                ReturnToOriginalPosition(draggedObject);
+            }
+            
+            <span class="comment">// Reset visual feedback</span>
+            draggedObject.GetComponent&lt;<span class="type">Renderer</span>&gt;().material.color = <span class="type">Color</span>.white;
+            draggedObject = null;
+        }
+    }
+
+    <span class="keyword">void</span> <span class="method">ReturnToOriginalPosition</span>(<span class="type">GameObject</span> obj)
+    {
+        obj.transform.position = originalPosition;
+    }
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>👁️ Example 4: Off-Screen UI Indicator System</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="keyword">public class</span> <span class="type">OffScreenIndicator</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="type">Transform</span> target;
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="type">RectTransform</span> indicator;
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="type">Canvas</span> canvas;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+    }
+
+    <span class="keyword">void</span> <span class="method">Update</span>()
+    {
+        <span class="keyword">if</span> (target == null) <span class="keyword">return</span>;
+
+        <span class="comment">// Check if object is visible on screen</span>
+        <span class="keyword">bool</span> isVisible = vision.<span class="method">IsPositionVisible</span>(target.position);
+        
+        <span class="keyword">if</span> (isVisible)
+        {
+            <span class="comment">// Object visible - hide indicator</span>
+            indicator.gameObject.SetActive(<span class="keyword">false</span>);
+        }
+        <span class="keyword">else</span>
+        {
+            <span class="comment">// Object not visible - show direction indicator</span>
+            indicator.gameObject.SetActive(<span class="keyword">true</span>);
+            UpdateIndicatorPosition();
+        }
+    }
+
+    <span class="keyword">void</span> <span class="method">UpdateIndicatorPosition</span>()
+    {
+        <span class="comment">// Get object position on screen (even if outside bounds)</span>
+        <span class="type">Vector2</span> screenPos = vision.<span class="method">WorldToScreen</span>(target.position);
+        
+        <span class="comment">// Clamp position to safe area</span>
+        <span class="type">Vector2</span> clampedPos = vision.<span class="method">ClampToSafeArea</span>(screenPos);
+        
+        <span class="comment">// Convert to UI coordinates</span>
+        <span class="type">Vector2</span> uiPos = vision.<span class="method">ConvertScreenToUI</span>(clampedPos, canvas);
+        
+        <span class="comment">// Set indicator position</span>
+        indicator.localPosition = uiPos;
+        
+        <span class="comment">// Rotate indicator toward object</span>
+        <span class="type">Vector2</span> direction = (screenPos - clampedPos).normalized;
+        <span class="keyword">float</span> angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        indicator.rotation = <span class="type">Quaternion</span>.AngleAxis(angle, <span class="type">Vector3</span>.forward);
+    }
+}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration -->
+        <section id="integration" class="section">
+            <div class="section-header">
+                <h2>⚙️ Integration Guide</h2>
+                <p>Step-by-step guide to integrate EG.Vision.System into your existing project.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>📋 System Requirements</h3>
+                <div class="info-box">
+                    <strong>Engine Version:</strong> 2022.3 LTS or newer (compatible with development environment)<br>
+                    <strong>Render Pipelines:</strong> Built-in RP, URP, HDRP (all supported)<br>
+                    <strong>Input Systems:</strong> Legacy Input Manager, Input System Package (both supported)<br>
+                    <strong>Platforms:</strong> Windows, Mac, Linux, iOS, Android, WebGL
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>📝 Step-by-Step Integration</h3>
+                
+                <h4>1. Basic Setup</h4>
+                <div class="centered-list">
+                    <ol>
+                        <li>Import the EG.Vision.System package into your game project</li>
+                        <li>Add the <code>VisionManager</code> component to any GameObject in the scene</li>
+                        <li>The system initializes automatically when the scene starts</li>
+                    </ol>
+                </div>
+
+                <h4>2. System Access</h4>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C# - Recommended Patterns</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// Method 1: Direct reference (recommended for performance)</span>
+<span class="keyword">public class</span> <span class="type">GameManager</span> : <span class="type">MonoBehaviour</span>
+{
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="type">VisionManager</span> visionManager;
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = visionManager; <span class="comment">// VisionManager implements IVisionSystem</span>
+    }
+}
+
+<span class="comment">// Method 2: Runtime search (simpler, but slightly slower)</span>
+<span class="keyword">public class</span> <span class="type">PlayerController</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+    }
+}</div>
+                </div>
+
+                <div class="info-box success">
+                    <strong>✅ Zero Configuration:</strong> EG.Vision.System works out of the box with any game project. No additional setup required!
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>⚡ Performance Considerations</h3>
+                <div class="info-box success">
+                    <strong>🚀 Performance Optimized:</strong> EG.Vision.System uses caching, object pooling, and efficient algorithms to minimize performance impact.
+                </div>
+                <div class="centered-list">
+                    <ul>
+                        <li><strong>Camera Discovery:</strong> Operates on configurable intervals to avoid frame rate impact</li>
+                        <li><strong>Coordinate Conversion:</strong> Uses cached camera references and optimized math</li>
+                        <li><strong>Event System:</strong> Minimal allocation with efficient event dispatching</li>
+                        <li><strong>Raycasting:</strong> Intelligent choice between 3D and UI raycasting</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🔧 System Configuration</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// VisionConfig - system settings</span>
+[<span class="type">CreateAssetMenu</span>(fileName = <span class="string">"VisionConfig"</span>, menuName = <span class="string">"EG/Vision System/System Config"</span>)]
+<span class="keyword">public class</span> <span class="type">VisionConfig</span> : <span class="type">ScriptableObject</span>
+{
+    [<span class="type">Header</span>(<span class="string">"Discovery Settings"</span>)]
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="keyword">bool</span> autoDetectCameras = <span class="keyword">true</span>;
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="keyword">float</span> discoveryInterval = <span class="number">2f</span>;
+    
+    [<span class="type">Header</span>(<span class="string">"Debug & Logging"</span>)]
+    [<span class="type">SerializeField</span>] <span class="keyword">private</span> <span class="keyword">bool</span> enableDebugLogging = <span class="keyword">false</span>;
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🎥 Integration with Existing Systems</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C# - Cinemachine Integration</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// Cinemachine integration</span>
+<span class="keyword">public class</span> <span class="type">CinemachineIntegration</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+    
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+        vision.Events.OnPrimaryCameraChanged += UpdateVirtualCameras;
+    }
+    
+    <span class="keyword">void</span> <span class="method">UpdateVirtualCameras</span>(<span class="type">Camera</span> newCamera)
+    {
+        <span class="comment">// Update all Cinemachine virtual cameras</span>
+        <span class="keyword">var</span> virtualCameras = FindObjectsByType&lt;<span class="type">CinemachineVirtualCamera</span>&gt;(<span class="type">FindObjectsSortMode</span>.None);
+        <span class="keyword">foreach</span> (<span class="keyword">var</span> vcam <span class="keyword">in</span> virtualCameras)
+        {
+            <span class="comment">// Configure Cinemachine to work with new camera</span>
+            vcam.m_OutputCamera = newCamera;
+        }
+    }
+}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced -->
+        <section id="advanced" class="section">
+            <div class="section-header">
+                <h2>🔮 Advanced Features</h2>
+                <p>Unlock the full potential of EG.Vision.System with advanced features and customization options.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>🎥 Custom Camera Discovery</h3>
+                <p>The system automatically discovers and classifies cameras, but you can override this behavior:</p>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// Override primary camera (useful for cutscenes)</span>
+vision.<span class="method">SetPrimaryCamera</span>(cutsceneCamera);
+
+<span class="comment">// Get cameras by type</span>
+<span class="keyword">var</span> mainCameras = vision.<span class="method">GetCamerasByType</span>(<span class="type">VisionCameraType</span>.Main);
+<span class="keyword">var</span> uiCameras = vision.<span class="method">GetCamerasByType</span>(<span class="type">VisionCameraType</span>.UI);
+
+<span class="comment">// Find camera by name</span>
+<span class="type">Camera</span> securityCam = vision.<span class="method">GetCameraByName</span>(<span class="string">"SecurityCamera"</span>);
+
+<span class="comment">// Force camera refresh after scene changes</span>
+vision.<span class="method">ForceRefreshCameras</span>();
+
+<span class="comment">// Get detailed camera information</span>
+<span class="type">VisionCameraInfo</span> info = vision.<span class="method">GetCameraInfo</span>();
+<span class="keyword">if</span> (info.isOrthographic)
+{
+    Debug.Log($<span class="string">"Orthographic size: {info.orthographicSize}"</span>);
+}
+<span class="keyword">else</span>
+{
+    Debug.Log($<span class="string">"Field of view: {info.fieldOfView}"</span>);
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>⚡ Event-driven Architecture</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="keyword">public class</span> <span class="type">EventDrivenGameManager</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+        
+        <span class="comment">// Subscribe to all relevant events</span>
+        vision.Events.OnPrimaryCameraChanged += HandleCameraChange;
+        vision.Events.OnCameraDiscovered += HandleNewCamera;
+        vision.Events.OnResolutionChanged += HandleResolutionChange;
+        vision.Events.OnOrientationChanged += HandleOrientationChange;
+    }
+
+    <span class="keyword">void</span> <span class="method">HandleCameraChange</span>(<span class="type">Camera</span> newCamera)
+    {
+        Debug.Log($<span class="string">"Primary camera changed to: {newCamera?.name ?? "null"}"</span>);
+        
+        <span class="comment">// Update camera-dependent systems</span>
+        UpdatePostProcessing(newCamera);
+        UpdateAudioListener(newCamera);
+        UpdateCameraEffects(newCamera);
+    }
+
+    <span class="keyword">void</span> <span class="method">HandleNewCamera</span>(<span class="type">Camera</span> newCamera)
+    {
+        Debug.Log($<span class="string">"New camera discovered: {newCamera.name}"</span>);
+        
+        <span class="comment">// Auto-configure new cameras</span>
+        <span class="keyword">if</span> (newCamera.CompareTag(<span class="string">"SecurityCamera"</span>))
+        {
+            SetupSecurityCamera(newCamera);
+        }
+    }
+
+    <span class="keyword">void</span> <span class="method">OnDestroy</span>()
+    {
+        <span class="comment">// Unsubscribe from events to prevent memory leaks</span>
+        <span class="keyword">if</span> (vision != null)
+        {
+            vision.Events.OnPrimaryCameraChanged -= HandleCameraChange;
+            vision.Events.OnCameraDiscovered -= HandleNewCamera;
+            vision.Events.OnResolutionChanged -= HandleResolutionChange;
+            vision.Events.OnOrientationChanged -= HandleOrientationChange;
+        }
+    }
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>📈 Performance Patterns</h3>
+                <div class="info-box">
+                    <strong>💡 Cache Vision System Reference:</strong> Store IVisionSystem reference instead of repeatedly calling FindFirstObjectByType.
+                </div>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C# - Good vs Bad Patterns</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// Good: Cache reference</span>
+<span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+
+<span class="keyword">void</span> <span class="method">Start</span>()
+{
+    vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+}
+
+<span class="keyword">void</span> <span class="method">Update</span>()
+{
+    <span class="comment">// Fast: Use cached reference</span>
+    <span class="type">GameObject</span> obj = vision.<span class="method">GetObjectUnderCursor</span>();
+}
+
+<span class="comment">// Bad: Don't do this</span>
+<span class="keyword">void</span> <span class="method">Update</span>()
+{
+    <span class="comment">// Slow: Search every frame</span>
+    <span class="type">IVisionSystem</span> vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+    <span class="type">GameObject</span> obj = vision.<span class="method">GetObjectUnderCursor</span>();
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🐛 Logging and Debugging</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// Enable detailed logging in VisionConfig</span>
+<span class="keyword">public class</span> <span class="type">VisionDebugger</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+        
+        <span class="comment">// Log system status</span>
+        LogSystemStatus();
+        
+        <span class="comment">// Monitor raycast performance</span>
+        StartCoroutine(MonitorRaycastPerformance());
+    }
+
+    [<span class="type">ContextMenu</span>(<span class="string">"Log System Status"</span>)]
+    <span class="keyword">void</span> <span class="method">LogSystemStatus</span>()
+    {
+        <span class="keyword">if</span> (vision == null) <span class="keyword">return</span>;
+        
+        Debug.Log($<span class="string">"=== Vision System Status ==="</span>);
+        Debug.Log($<span class="string">"Initialized: {vision.IsInitialized}"</span>);
+        
+        <span class="keyword">var</span> primaryCamera = vision.<span class="method">GetPrimaryCamera</span>();
+        Debug.Log($<span class="string">"Primary Camera: {(primaryCamera != null ? primaryCamera.name : "None")}"</span>);
+        
+        <span class="keyword">var</span> allCameras = vision.<span class="method">GetAllCameras</span>();
+        Debug.Log($<span class="string">"Total Cameras: {allCameras.Count}"</span>);
+        
+        <span class="keyword">foreach</span> (<span class="keyword">var</span> cam <span class="keyword">in</span> allCameras)
+        {
+            <span class="keyword">if</span> (cam != null)
+            {
+                <span class="keyword">var</span> info = vision.<span class="method">GetCameraInfo</span>(cam);
+                Debug.Log($<span class="string">"  - {cam.name}: Type={info.cameraType}, Depth={cam.depth}"</span>);
+            }
+        }
+    }
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🎮 Custom Input System Integration</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C# - New Input System</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// New Input System integration</span>
+<span class="keyword">using</span> UnityEngine.InputSystem;
+
+<span class="keyword">public class</span> <span class="type">NewInputIntegration</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision;
+    <span class="keyword">private</span> <span class="type">InputAction</span> clickAction;
+    <span class="keyword">private</span> <span class="type">InputAction</span> positionAction;
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+        
+        <span class="comment">// Setup Input Actions</span>
+        clickAction = <span class="keyword">new</span> <span class="type">InputAction</span>(<span class="string">"Click"</span>, <span class="type">InputActionType</span>.Button, <span class="string">"&lt;Mouse&gt;/leftButton"</span>);
+        positionAction = <span class="keyword">new</span> <span class="type">InputAction</span>(<span class="string">"Position"</span>, <span class="type">InputActionType</span>.Value, <span class="string">"&lt;Mouse&gt;/position"</span>);
+        
+        clickAction.performed += OnClick;
+        
+        clickAction.Enable();
+        positionAction.Enable();
+    }
+
+    <span class="keyword">void</span> <span class="method">OnClick</span>(<span class="type">InputAction.CallbackContext</span> context)
+    {
+        <span class="type">Vector2</span> mousePos = positionAction.ReadValue&lt;<span class="type">Vector2</span>&gt;();
+        <span class="type">VisionRaycastResult</span> result = vision.<span class="method">PerformRaycast</span>(mousePos);
+        
+        <span class="keyword">if</span> (result.hasHit)
+        {
+            Debug.Log($<span class="string">"Clicked: {result.hitObject.name}"</span>);
+        }
+    }
+
+    <span class="keyword">void</span> <span class="method">OnDestroy</span>()
+    {
+        clickAction?.Disable();
+        positionAction?.Disable();
+    }
+}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section id="troubleshooting" class="section">
+            <div class="section-header">
+                <h2>🔧 Troubleshooting</h2>
+                <p>Common issues and their solutions to help you get the most out of EG.Vision.System.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>⚠️ Common Issues and Solutions</h3>
+                
+                <h4>❌ Error "Vision System not initialized"</h4>
+                <div class="info-box warning">
+                    <strong>Problem:</strong> Attempting to use vision system before initialization.
+                </div>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C# Solution</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// Solution: Check initialization before use</span>
+<span class="keyword">void</span> <span class="method">Start</span>()
+{
+    <span class="type">IVisionSystem</span> vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+    
+    <span class="keyword">if</span> (vision == null)
+    {
+        Debug.LogError(<span class="string">"VisionManager not found in scene!"</span>);
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="keyword">if</span> (!vision.IsInitialized)
+    {
+        Debug.LogWarning(<span class="string">"Vision system not yet initialized"</span>);
+        <span class="comment">// Wait for initialization or force initialize</span>
+        StartCoroutine(WaitForInitialization());
+    }
+}
+
+<span class="type">IEnumerator</span> <span class="method">WaitForInitialization</span>()
+{
+    <span class="keyword">while</span> (!vision.IsInitialized)
+    {
+        <span class="keyword">yield return</span> <span class="keyword">null</span>;
+    }
+    
+    <span class="comment">// Now safe to use system</span>
+    InitializeMySystem();
+}</div>
+                </div>
+
+                <h4>❌ Raycast not hitting UI elements</h4>
+                <div class="info-box warning">
+                    <strong>Problem:</strong> UI raycasting not working properly.
+                </div>
+                <p><strong>Solutions:</strong></p>
+                <div class="centered-list">
+                    <ul>
+                        <li>Ensure EventSystem is present in the scene</li>
+                        <li>Check that UI elements have Raycast Target enabled</li>
+                        <li>Ensure GraphicRaycaster is on Canvas</li>
+                        <li>Check that UI elements aren't blocked by other UI</li>
+                        <li>Verify Canvas layer sorting (Order in Layer)</li>
+                    </ul>
+                </div>
+
+                <h4>❌ Null camera references</h4>
+                <div class="info-box warning">
+                    <strong>Problem:</strong> GetPrimaryCamera() returns null.
+                </div>
+                <p><strong>Solutions:</strong></p>
+                <div class="centered-list">
+                    <ul>
+                        <li>Ensure at least one active camera exists in the scene</li>
+                        <li>Add "MainCamera" tag to your primary camera</li>
+                        <li>Force refresh cameras after scene changes</li>
+                        <li>Check that camera is enabled and GameObject is active</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>✅ Best Practices</h3>
+                <div class="info-box success">
+                    <strong>🎯 Recommended Setup:</strong> Follow these best practices for optimal performance and reliability.
+                </div>
+                
+                <h4>✅ System Initialization</h4>
+                <div class="centered-list">
+                    <ul>
+                        <li>Place VisionManager on a persistent GameObject (like GameManager)</li>
+                        <li>Initialize early in the game lifecycle</li>
+                        <li>Cache IVisionSystem reference for performance</li>
+                        <li>Subscribe to events for reactive programming</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>❓ Frequently Asked Questions (FAQ)</h3>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <h4>Q: Can I use multiple VisionManagers in one scene?</h4>
+                        <p>A: No, use only one VisionManager per scene. The system automatically manages all cameras.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <h4>Q: Does the system support multi-scene setups?</h4>
+                        <p>A: Yes, place VisionManager in the main scene and it will track cameras across all loaded scenes.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <h4>Q: Does it work with Cinemachine?</h4>
+                        <p>A: Yes, the system automatically detects cameras created by Cinemachine. Use events for synchronization.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <h4>Q: Does it impact performance?</h4>
+                        <p>A: Minimally. The system is optimized with caching and efficient algorithms. Camera discovery happens every 2 seconds by default.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance -->
+        <section id="performance" class="section">
+            <div class="section-header">
+                <h2>📈 Performance Guide</h2>
+                <p>Optimize your implementation for maximum performance and efficiency.</p>
+            </div>
+
+            <div class="glass-card">
+                <h3>🚀 System Optimizations</h3>
+                <div class="info-box success">
+                    <strong>⚡ Built-in Optimizations:</strong> EG.Vision.System is designed with performance in mind and includes many built-in optimizations.
+                </div>
+                
+                <h4>Automatic Optimizations</h4>
+                <div class="centered-list">
+                    <ul>
+                        <li><strong>Camera Caching:</strong> Camera references are cached and updated only when necessary</li>
+                        <li><strong>Interval Discovery:</strong> New camera search happens every 2 seconds, not every frame</li>
+                        <li><strong>Efficient Events:</strong> Event system uses minimal memory allocation</li>
+                        <li><strong>Optimized Raycasting:</strong> Automatic choice between 3D and UI raycasting</li>
+                        <li><strong>Lazy Initialization:</strong> Subsystems are created only when needed</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>✅ Usage Recommendations</h3>
+                
+                <h4>✅ Correct Patterns</h4>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C# - Optimized Patterns</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// ✅ Cache system reference</span>
+<span class="keyword">public class</span> <span class="type">OptimizedController</span> : <span class="type">MonoBehaviour</span>
+{
+    <span class="keyword">private</span> <span class="type">IVisionSystem</span> vision; <span class="comment">// Cached reference</span>
+    <span class="keyword">private</span> <span class="type">Camera</span> cachedCamera; <span class="comment">// Cached camera</span>
+
+    <span class="keyword">void</span> <span class="method">Start</span>()
+    {
+        vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+        cachedCamera = vision.<span class="method">GetPrimaryCamera</span>();
+        
+        <span class="comment">// Subscribe to camera changes</span>
+        vision.Events.OnPrimaryCameraChanged += UpdateCachedCamera;
+    }
+
+    <span class="keyword">void</span> <span class="method">UpdateCachedCamera</span>(<span class="type">Camera</span> newCamera)
+    {
+        cachedCamera = newCamera;
+    }
+
+    <span class="keyword">void</span> <span class="method">Update</span>()
+    {
+        <span class="comment">// ✅ Use cached references</span>
+        <span class="keyword">if</span> (Input.GetMouseButtonDown(<span class="number">0</span>))
+        {
+            <span class="type">GameObject</span> obj = vision.<span class="method">GetObjectUnderCursor</span>(cachedCamera);
+            <span class="keyword">if</span> (obj != null) ProcessClick(obj);
+        }
+    }
+}</div>
+                </div>
+
+                <h4>❌ Inefficient Patterns</h4>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C# - Avoid These Patterns</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// ❌ Don't do this - inefficient</span>
+<span class="keyword">void</span> <span class="method">Update</span>()
+{
+    <span class="comment">// ❌ Search for system every frame</span>
+    <span class="type">IVisionSystem</span> vision = FindFirstObjectByType&lt;<span class="type">VisionManager</span>&gt;();
+    
+    <span class="comment">// ❌ Get camera every frame</span>
+    <span class="type">Camera</span> cam = vision.<span class="method">GetPrimaryCamera</span>();
+    
+    <span class="comment">// ❌ Unnecessary raycasts</span>
+    <span class="type">VisionRaycastResult</span> result = vision.<span class="method">PerformRaycast</span>(Input.mousePosition);
+}</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>⚙️ Performance Configuration Settings</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">C#</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <div class="code-block"><span class="comment">// Optimal VisionConfig settings for performance</span>
+<span class="keyword">void</span> <span class="method">OptimizeForPerformance</span>()
+{
+    <span class="comment">// Increase discovery interval for static scenes</span>
+    <span class="comment">// discoveryInterval = 5f; // Instead of 2f default</span>
+    
+    <span class="comment">// Disable auto-detection if cameras don't change</span>
+    <span class="comment">// autoDetectCameras = false;</span>
+    
+    <span class="comment">// Disable debug logs in production</span>
+    <span class="comment">// enableDebugLogging = false;</span>
+}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <h2>🎥 EG.Vision.System</h2>
+            <p class="subtitle"><strong>Universal Camera & Coordinate Management Solution</strong></p>
+            <span class="version">Version 2025.1 - Production Ready</span>
+            <p style="margin: 2rem 0; font-size: 1.2rem; color: var(--text-secondary);">
+                Built with SOLID Principles • Comprehensive API • Mobile Optimization
+            </p>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">📊</div>
+                    <h3>Key Benefits</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>• 90% less code</li>
+                        <li>• Zero configuration</li>
+                        <li>• Production tested</li>
+                    </ul>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <h3>Performance</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>• Ready for 60+ FPS</li>
+                        <li>• Zero allocation</li>
+                        <li>• Mobile optimized</li>
+                    </ul>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">✅</div>
+                    <h3>Compatibility</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>• All render pipelines</li>
+                        <li>• All input systems</li>
+                        <li>• All platforms</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="margin: 3rem 0; padding: 2rem; background: var(--gradient-card); border-radius: 16px; border: 1px solid var(--border);">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; text-align: center;">
+                    👑 One API to Rule Them All
+                </h3>
+                <p style="text-align: center; font-size: 1.1rem; margin-bottom: 2rem;">
+                    For questions and support, refer to the example scenes and this documentation.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(--secondary); margin-bottom: 0.5rem;">📚</div>
+                        <strong>Documentation</strong><br>
+                        Complete reference
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;">💻</div>
+                        <strong>Examples</strong><br>
+                        Working implementations
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem;">⚙️</div>
+                        <strong>Integration</strong><br>
+                        Step-by-step guides
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; text-align: center;">
+                    <p><strong>Support:</strong> For questions and support, refer to the example scenes and this documentation.</p>
+                    <p><strong>Updates:</strong> Check the changelog for new features and improvements.</p>
+                    <p><strong>Integration:</strong> Fully compatible with Cinemachine, Post Processing Stack, and other development tools.</p>
+                </div>
+            </div>
+            
+            <!-- Legal Disclaimer -->
+            <div style="margin: 3rem 0; padding: 2rem; background: linear-gradient(135deg, #374151 0%, #4b5563 100%); border-radius: 16px; border: 1px solid var(--border);">
+                <h4 style="color: var(--accent); margin-bottom: 1rem; text-align: center;">
+                    ⚖️ Legal Notice
+                </h4>
+                <div style="text-align: center; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                    <p style="margin-bottom: 0.5rem;">
+                        <strong>Trademark Notice:</strong> This product is an independent development tool and is not affiliated with, endorsed by, or sponsored by any third-party companies mentioned.
+                    </p>
+                    <p style="margin-bottom: 0.5rem;">
+                        All trademarks are the property of their respective owners.
+                    </p>
+                    <p style="margin-bottom: 0;">
+                        EG.Vision.System is provided "as-is" without warranty of any kind. Use at your own risk.
+                    </p>
+                </div>
+            </div>
+            
+            <p style="color: var(--text-muted); margin-top: 2rem; font-size: 0.9rem;">
+                © 2025 EG.Vision.System - Production Ready Game Development Framework
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Floating Particles
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const size = Math.random() * 4 + 1;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+            
+            document.querySelector('.floating-particles').appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 25000);
+        }
+
+        // Create particles periodically
+        setInterval(createParticle, 2000);
+
+        // Progress Bar
+        function updateProgressBar() {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / docHeight) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Navigation
+        function updateActiveNavLink() {
+            const sections = document.querySelectorAll('.section, .hero');
+            const navLinks = document.querySelectorAll('.nav-list a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === current || 
+                    (current === 'hero' && link.getAttribute('href') === '#hero')) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            
+            updateProgressBar();
+            updateActiveNavLink();
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 50);
+                }
+            });
+        }, observerOptions);
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Observe sections for animations
+            document.querySelectorAll('.section').forEach(section => {
+                observer.observe(section);
+            });
+
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Mobile navigation toggle
+            const navToggle = document.getElementById('navToggle');
+            const navigation = document.getElementById('navigation');
+            
+            navToggle.addEventListener('click', () => {
+                navigation.classList.toggle('open');
+                navToggle.textContent = navigation.classList.contains('open') ? '✕' : '☰';
+            });
+
+            // Close mobile nav when clicking links
+            document.querySelectorAll('.nav-list a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        navigation.classList.remove('open');
+                        navToggle.textContent = '☰';
+                    }
+                });
+            });
+        });
+
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-container').querySelector('.code-block');
+            const text = codeBlock.textContent;
+            
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 150);
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        // Responsive handling
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('navigation').classList.remove('open');
+                document.getElementById('navToggle').textContent = '☰';
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const navigation = document.getElementById('navigation');
+                if (navigation.classList.contains('open')) {
+                    navigation.classList.remove('open');
+                    document.getElementById('navToggle').textContent = '☰';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
